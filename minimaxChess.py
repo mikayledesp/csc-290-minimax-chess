@@ -56,38 +56,42 @@ def main () -> None:
         # if its the bots turn 
         if (board.turn == botColor):
             moveList = list(board.legal_moves)
-            randIndex = random.randint(0,len(moveList)-1)
+            # randIndex = random.randint(0,len(moveList)-1)
 
-            botMove = moveList[randIndex]
+            # botMove = moveList[randIndex]
             best_score = -math.inf
             best_move = None
             for move in moveList:
                 baseBoard = chess.BaseBoard(board.board_fen())
                 move_piece = baseBoard.piece_at(move.to_square)
-                print(move_piece)
+                # print(move_piece)
                 player_move_score = getEval(move_piece)
                 
                 board.push(move) 
                 moveList_opp = list(board.legal_moves)
                 
                 for opp_move in moveList_opp:
-                    baseBoard = chess.BaseBoard(board.board_fen())
-                    move_piece = baseBoard.piece_at(opp_move.to_square)
-                    print(move_piece)
-                    opp_move_score = getEval(move_piece)
+                    opp_baseBoard = chess.BaseBoard(board.board_fen())
+                    opp_move_piece = opp_baseBoard.piece_at(opp_move.to_square)
+                    # print(opp_move_piece)
+                    opp_move_score = getEval(opp_move_piece)
 
                     score = player_move_score - opp_move_score
+                    board.push(opp_move)
                     board.pop()
 
                     if score > best_score:
                         best_score = score
                         best_move = move
 
+                board.pop()
 
-                    
-            print(f"{botName}: {botMove}")
 
-            board.push(botMove)
+            bigBaseBoard = chess.BaseBoard(board.board_fen())
+            print(bigBaseBoard.piece_at(best_move.to_square))
+            print(f"{botName}: {best_move}")
+
+            board.push(best_move)
             print(f"New FEN position: {board.fen()}")
         else:
             moveList = list(board.legal_moves)
