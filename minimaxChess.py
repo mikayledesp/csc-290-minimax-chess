@@ -22,115 +22,71 @@ def getEval(captured_piece:chess.Piece|None) -> int:
             return 0
 
 
-# def min(board, rec_depth):
-#     # rec_depth += 1
-#     moveList = list(board.legal_moves)
-#     opp_best_score = +math.inf
-#     opp_best_move = None
-
-#     for move in moveList:
-#         baseBoard = chess.BaseBoard(board.board_fen())
-#         move_piece = baseBoard.piece_at(move.to_square)
-
-#         if ( 0 == rec_depth):
-#             return -getEval(move_piece), move
-        
-        
-#         # print(move_piece)
-#         # player_move_score = getEval(move_piece)
-        
-#         board.push(move) 
-#         moveList_opp = list(board.legal_moves)
-    
-#         for opp_move in moveList_opp:
-#             board.push(opp_move)
-#             score,new_move = max(board, rec_depth-1)
-            
-#             board.pop()
-
-#             if score < opp_best_score:
-#                 opp_best_score = score
-#                 opp_best_move = move
-
-    
-#     return opp_best_score,opp_best_move
-    
-# def max(board, rec_depth):
-   
-#     moveList = list(board.legal_moves)
-#     best_score = -math.inf
-#     best_move = None
-    
-#     for move in moveList:
-#         baseBoard = chess.BaseBoard(board.board_fen())
-#         move_piece = baseBoard.piece_at(move.to_square)
-        
-#         if ( 0 == rec_depth):
-#             return getEval(move_piece), move
-#         board.push(move) 
-#         score,new_move = min(board, rec_depth-1)
-#         board.pop()
-#         if score > best_score:
-#             best_score = score
-#             best_move = move
-         
-#         # moveList_opp = list(board.legal_moves)
-#     # print(move_piece)
-#     # player_move_score = getEval(move_piece)
-    
-#         # for opp_move in moveList_opp:
-#         #     board.push(opp_move)
-#         #     score,new_move = max(board, rec_depth-1)
-#         #     board.pop()
-
-#         #     if score > best_score:
-#         #         best_score = score
-#         #         best_move = move
-
-#     return best_score,best_move
-
  # version with keeping the op move in min and doing the player in max ???? 
-def min(board, rec_depth):
+def min(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
     moveList = list(board.legal_moves)
     opp_best_score = +math.inf
-    opp_best_move = None
+    opp_best_moves = []
+    # opp_best_move = None
 
     for move in moveList:
         baseBoard = chess.BaseBoard(board.board_fen())
         move_piece = baseBoard.piece_at(move.to_square)
+        opp_move_score = -getEval(move_piece)
 
         if rec_depth == 0:
-            return -getEval(move_piece), move
-        score, new_move = max(board, rec_depth - 1)
+            return -getEval(move_piece), [move]
+        
         board.push(move)
-        board.pop()
+
+        player_score, player_moves = max(board, rec_depth - 1)
+        # if (new_move != None):
+        #     board.push(new_move)
+        # else:
+        #     print("NoneType error")
+
+        score = opp_move_score - player_score
+
         if score < opp_best_score:
             opp_best_score = score
-            opp_best_move = move
-    return opp_best_score, opp_best_move
+            opp_best_moves = [move]
+            # opp_best_move = move
+        elif score == opp_best_score:
+            opp_best_moves.append(move)   
+        board.pop()
+        
+    return opp_best_score, opp_best_moves
 
 
-def max(board, rec_depth):
+def max(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
+    best_moves = []
     moveList = list(board.legal_moves)
     best_score = -math.inf
-    best_move = None
-
-    # print(moveList)
+    # best_move = None
 
     for move in moveList:
         baseBoard = chess.BaseBoard(board.board_fen())
         move_piece = baseBoard.piece_at(move.to_square)
+        player_move_score = getEval(move_piece)
         if rec_depth == 0:
-            return getEval(move_piece), move
+            return getEval(move_piece), [move]
         
-        score, new_move = min(board, rec_depth - 1)
         board.push(move)
-        board.pop()
+        opp_score, opp_move = min(board, rec_depth - 1)
+        # if (opp_move != None):
+        #     board.push(opp_move)
+        # else:
+        #     print("NoneType error")
+        score = player_move_score + opp_score
+    
         if score > best_score:
             best_score = score
-            best_move = move
-    return best_score, best_move
+            best_moves = [move]
+        elif score == best_score:
+            best_moves.append(move) 
     
+        board.pop()
+    return best_score, best_moves
 
 
 def main () -> None:
@@ -164,54 +120,24 @@ def main () -> None:
     print(board)
     print("-----------------")
     while not board.is_game_over() :
-        # if its the bots turn 
         if (board.turn == botColor):
-            # moveList = list(board.legal_moves)
-            # randIndex = random.randint(0,len(moveList)-1)
-
-            # botMove = moveList[randIndex]
-            # best_score = -math.inf
-            # best_move = None
-            # for move in moveList:
-            #     baseBoard = chess.BaseBoard(board.board_fen())
-            #     move_piece = baseBoard.piece_at(move.to_square)
-            #     # print(move_piece)
-            #     player_move_score = getEval(move_piece)
-                
-            #     board.push(move) 
-            #     moveList_opp = list(board.legal_moves)
-                
-            #     for opp_move in moveList_opp:
-            #         opp_baseBoard = chess.BaseBoard(board.board_fen())
-            #         opp_move_piece = opp_baseBoard.piece_at(opp_move.to_square)
-            #         # print(opp_move_piece)
-            #         opp_move_score = getEval(opp_move_piece)
-
-            #         score = player_move_score - opp_move_score
-            #         board.push(opp_move)
-            #         board.pop()
-
-            #         if score > best_score:
-            #             best_score = score
-            #             best_move = move
-
-            #     board.pop()
-
-            # curr_fen = board.board_fen()
+            best_moves = []
             best_move = None
             best_score = 0
-            best_score, best_move = max(board, 3)
+            best_score, best_moves = max(board, 3)
            
-            print(best_move)
-
-
+            # print(best_move)
+            best_move = best_moves[random.randint(0,len(best_moves)-1)]
 
             bigBaseBoard = chess.BaseBoard(board.board_fen())
-            print(bigBaseBoard.piece_at(best_move.to_square))
-            print(f"{botName}: {best_move}")
+            if (len(best_moves) != 0):
+                print(f"{botName}: {best_move}")
 
-            board.push(best_move)
-            print(f"New FEN position: {board.fen()}")
+                board.push(best_move)
+                print(f"New FEN position: {board.fen()}")
+            else: 
+                print("Error: Minimax returning no moves.")
+
         else:
             moveList = list(board.legal_moves)
 
