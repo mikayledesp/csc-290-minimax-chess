@@ -22,12 +22,10 @@ def getEval(captured_piece:chess.Piece|None) -> int:
             return 0
 
 
- # version with keeping the op move in min and doing the player in max ???? 
 def min(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
     moveList = list(board.legal_moves)
     opp_best_score = +math.inf
     opp_best_moves = []
-    # opp_best_move = None
 
     for move in moveList:
         baseBoard = chess.BaseBoard(board.board_fen())
@@ -40,19 +38,15 @@ def min(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
         board.push(move)
 
         player_score, player_moves = max(board, rec_depth - 1)
-        # if (new_move != None):
-        #     board.push(new_move)
-        # else:
-        #     print("NoneType error")
 
         score = opp_move_score - player_score
 
         if score < opp_best_score:
             opp_best_score = score
             opp_best_moves = [move]
-            # opp_best_move = move
         elif score == opp_best_score:
-            opp_best_moves.append(move)   
+            opp_best_moves.append(move)  
+
         board.pop()
         
     return opp_best_score, opp_best_moves
@@ -62,7 +56,6 @@ def max(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
     best_moves = []
     moveList = list(board.legal_moves)
     best_score = -math.inf
-    # best_move = None
 
     for move in moveList:
         baseBoard = chess.BaseBoard(board.board_fen())
@@ -72,11 +65,9 @@ def max(board:chess.Board, rec_depth:int) -> tuple[float,list[chess.Move]]:
             return getEval(move_piece), [move]
         
         board.push(move)
+        
         opp_score, opp_move = min(board, rec_depth - 1)
-        # if (opp_move != None):
-        #     board.push(opp_move)
-        # else:
-        #     print("NoneType error")
+
         score = player_move_score + opp_score
     
         if score > best_score:
@@ -126,7 +117,6 @@ def main () -> None:
             best_score = 0
             best_score, best_moves = max(board, 3)
            
-            # print(best_move)
             best_move = best_moves[random.randint(0,len(best_moves)-1)]
 
             bigBaseBoard = chess.BaseBoard(board.board_fen())
